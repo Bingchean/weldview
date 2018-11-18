@@ -240,3 +240,4 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/twoDimensionImageHandle_3_2015/test.jpg
