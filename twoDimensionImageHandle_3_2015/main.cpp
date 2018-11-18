@@ -9,7 +9,7 @@ int main()
 	//cv::cvtColor(srcImg, srcImg, COLOR_RGB2GRAY);//进行，灰度处理
 
 	//Mat dstImg1, dstImg2, dstImg3, dstImg4, dstImg5;
-	//Size size0 = Size(5, 5);    
+	//Size size0 = Size(5, 5);     
 	//boxFilter(srcImg, dstImg1, -1, Size(3, 3), Point(-1, -1), true);  
 	//方框滤波器 bool normalize参数设置为true时等同于均值滤波   
 	//blur(srcImg, dstImg2, size0);  //均值滤波    
