@@ -5,8 +5,10 @@ using namespace std;
 
 #define random(x) (rand()%x)
 const int PER_SIZE_JUDGE = 100;
+const int POINT_CIRCLE_FONT = 10;
+const int LINE_FONT = 3;
 
-bool goal_point_legal(Mat src_img) 
+/*bool goal_point_legal(Mat src_img) 
 {
 	bool result = true;
 	for (int j = 0; j < src_img.cols; j++)
@@ -29,7 +31,7 @@ bool goal_point_legal(Mat src_img)
 		}
 	}
 	return result;
-}
+}*/
 
 void each_px_optimize(Mat src_img)
 {
@@ -87,18 +89,21 @@ void each_px_optimize(Mat src_img)
 	Mat toColor;
 	cvtColor(src_img, toColor, CV_GRAY2BGR);
 	
-	if (goal_point_legal(src_img))
+	int point_index = sel_cols_list.size() / 2 / 3;
+	int left_index_1 = point_index;
+	int left_index_2 = point_index * 2;
+	int right_index_1 = point_index * 4;
+	int right_index_2 = point_index * 5;
+
+	int up_left_point[4];										 // 断点左边，上面两个点的坐标 x1y1x2y2
+	int up_right_point[4];										 // 断点右边，上面两个点的坐标 x3y3x4y4
+
+	// 选定的四列中没有黑色区域块
+	if (!(goal_clos[left_index_1].empty() ||
+		goal_clos[left_index_2].empty() ||
+		goal_clos[right_index_1].empty() ||
+		goal_clos[right_index_2].empty()))
 	{
-		cout << "1" << endl;
-		int point_index = sel_cols_list.size() / 2 / 3;
-		int left_index_1 = point_index;
-		int left_index_2 = point_index * 2;
-		int right_index_1 = point_index * 4;
-		int right_index_2 = point_index * 5;
-
-		int up_left_point[4];										 // 断点左边，上面两个点的坐标 x1y1x2y2
-		int up_right_point[4];										 // 断点右边，上面两个点的坐标 x3y3x4y4
-
 		up_left_point[0] = sel_cols_list[left_index_1];				 // x1
 		up_left_point[1] = goal_clos[left_index_1].front().front();  // y1
 		up_left_point[2] = sel_cols_list[left_index_2];  			 // x2
@@ -111,15 +116,15 @@ void each_px_optimize(Mat src_img)
 		up_right_point[3] = goal_clos[right_index_2].front().front();// y4
 		int dif_right_b = goal_clos[right_index_1].front().back() - goal_clos[right_index_1].front().front();
 
-		circle(toColor, Point(up_left_point[0], up_left_point[1]), 10, Scalar(255, 0, 0), -1);
-		circle(toColor, Point(up_left_point[2], up_left_point[3]), 10, Scalar(255, 0, 0), -1);
-		circle(toColor, Point(up_left_point[0], up_left_point[1] + dif_left_b), 10, Scalar(255, 0, 0), -1);
-		circle(toColor, Point(up_left_point[2], up_left_point[3] + dif_left_b), 10, Scalar(255, 0, 0), -1);
+		circle(toColor, Point(up_left_point[0], up_left_point[1]), POINT_CIRCLE_FONT, Scalar(255, 0, 0), -1);
+		circle(toColor, Point(up_left_point[2], up_left_point[3]), POINT_CIRCLE_FONT, Scalar(255, 0, 0), -1);
+		circle(toColor, Point(up_left_point[0], up_left_point[1] + dif_left_b), POINT_CIRCLE_FONT, Scalar(255, 0, 0), -1);
+		circle(toColor, Point(up_left_point[2], up_left_point[3] + dif_left_b), POINT_CIRCLE_FONT, Scalar(255, 0, 0), -1);
 
-		circle(toColor, Point(up_right_point[0], up_right_point[1]), 10, Scalar(255, 0, 0), -1);
-		circle(toColor, Point(up_right_point[2], up_right_point[3]), 10, Scalar(255, 0, 0), -1);
-		circle(toColor, Point(up_right_point[0], up_right_point[1] + dif_right_b), 10, Scalar(255, 0, 0), -1);
-		circle(toColor, Point(up_right_point[2], up_right_point[3] + dif_right_b), 10, Scalar(255, 0, 0), -1);
+		circle(toColor, Point(up_right_point[0], up_right_point[1]), POINT_CIRCLE_FONT, Scalar(255, 0, 0), -1);
+		circle(toColor, Point(up_right_point[2], up_right_point[3]), POINT_CIRCLE_FONT, Scalar(255, 0, 0), -1);
+		circle(toColor, Point(up_right_point[0], up_right_point[1] + dif_right_b), POINT_CIRCLE_FONT, Scalar(255, 0, 0), -1);
+		circle(toColor, Point(up_right_point[2], up_right_point[3] + dif_right_b), POINT_CIRCLE_FONT, Scalar(255, 0, 0), -1);
 
 
 		float k_left, k_right;					// 斜率左边上下一致，右边上线一致
@@ -131,24 +136,24 @@ void each_px_optimize(Mat src_img)
 		b_up_right = up_right_point[1] - k_right * up_right_point[0];
 
 		line(toColor,
-			Point(0, b_up_left),			// 左上
-			Point(src_img.cols / 2, src_img.cols / 2 * k_left + b_up_left),
-			Scalar(240, 26, 46), 5, CV_AA);
+			Point(up_left_point[0], up_left_point[1]),			// 左上
+			Point(up_left_point[2], up_left_point[3]),
+			Scalar(240, 26, 46), LINE_FONT, CV_AA);
 		line(toColor,					    // 左下
-			Point(0, b_up_left + dif_left_b),
-			Point(src_img.cols / 2, src_img.cols / 2 * k_left + b_up_left + dif_left_b),
-			Scalar(240, 26, 46), 5, CV_AA);
+			Point(up_left_point[0], up_left_point[1] + dif_left_b),
+			Point(up_left_point[2], up_left_point[3] + dif_left_b),
+			Scalar(240, 26, 46), LINE_FONT, CV_AA);
 
 		line(toColor,						// 右上
-			Point(src_img.cols / 2, src_img.cols / 2 * k_right + b_up_right),
-			Point(src_img.cols, src_img.cols * k_right + b_up_right),
-			Scalar(240, 26, 46), 5, CV_AA);
+			Point(up_right_point[0], up_right_point[1]),
+			Point(up_right_point[2], up_right_point[3]),
+			Scalar(240, 26, 46), LINE_FONT, CV_AA);
 		line(toColor,                       // 右下
-			Point(src_img.cols / 2, src_img.cols / 2 * k_right + b_up_right + dif_right_b),
-			Point(src_img.cols, src_img.cols * k_right + b_up_right + dif_right_b),
-			Scalar(240, 26, 46), 5, CV_AA);
+			Point(up_right_point[0], up_right_point[1] + dif_right_b),
+			Point(up_right_point[2], up_right_point[3] + dif_right_b),
+			Scalar(240, 26, 46), LINE_FONT, CV_AA);
 	}
-
+	
 	namedWindow("ok", WINDOW_KEEPRATIO);
 	imshow("ok", toColor);
 }
