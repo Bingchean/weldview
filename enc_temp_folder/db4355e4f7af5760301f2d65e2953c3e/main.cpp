@@ -16,7 +16,7 @@ bool goal_point_legal(Mat src_img)
 		{
 			int data = src_img.ptr<uchar>(i, j)[0];
 			if (data == 255)
-			{	// 当前列只要有白色当前列就是合法的
+			{	// 当前列只要有黑色当前列就是合法的
 				cur_col_resulf = true;
 				break;
 			}
